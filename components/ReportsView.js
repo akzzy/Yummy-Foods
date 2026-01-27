@@ -254,7 +254,7 @@ export function ReportsView() {
                                                 .sort(([, a], [, b]) => b - a)
                                                 .map(([name, amount]) => (
                                                     <tr key={name} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                                                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white capitalize">
+                                                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
                                                             {name}
                                                         </td>
                                                         <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
@@ -332,7 +332,7 @@ export function ReportsView() {
                                                         {/* Child Rows (Items) */}
                                                         {expandedCategories[cat] && Object.entries(data.items).map(([desc, amount]) => (
                                                             <tr key={cat + desc} className="bg-gray-50/50 dark:bg-gray-900/20">
-                                                                <td className="px-4 py-2 pl-10 text-xs text-gray-500 dark:text-gray-400 capitalize flex items-center gap-2">
+                                                                <td className="px-4 py-2 pl-10 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700"></div>
                                                                     {desc}
                                                                 </td>

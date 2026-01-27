@@ -52,7 +52,7 @@ export async function GET() {
             const dateStr = row["Date"];
             const category = row["Category"] || "Uncategorized";
             // Normalize description: lowercase and default to "General" if empty
-            const description = (row["Description"] || "General").toLowerCase().trim();
+            const description = (row["Description"] || "General").trim();
             const amount = parseFloat(row["Amount"]?.replace(/[^\d.-]/g, '') || 0);
 
             const month = getMonthKey(dateStr);

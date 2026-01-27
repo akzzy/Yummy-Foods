@@ -43,10 +43,12 @@ export default function Home() {
       // Forms handle their own reset ideally, or we can force remount
       // For simplicity, we can just show success message for a bit
       setTimeout(() => setStatus(null), 3000);
+      return true;
 
     } catch (error) {
       console.error(error);
       setStatus("error");
+      return false;
     } finally {
       setLoading(false);
     }

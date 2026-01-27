@@ -17,6 +17,7 @@ export function ExpenseForm({ onSubmit, loading }) {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -25,8 +26,17 @@ export function ExpenseForm({ onSubmit, loading }) {
         }
     });
 
+    const handleLocalSubmit = async (data) => {
+        const success = await onSubmit(data);
+        if (success) {
+            setValue("category", EXPENSE_CATEGORIES[0]);
+            setValue("description", "");
+            setValue("amount", "");
+        }
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form onSubmit={handleSubmit(handleLocalSubmit)} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* Date */}
             <div className="space-y-1.5">
@@ -70,11 +80,7 @@ export function ExpenseForm({ onSubmit, loading }) {
                     id="description"
                     placeholder="Optional details"
                     className="w-full px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-800 rounded-md text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800 transition-all text-sm"
-                    {...register("description", {
-                        onChange: (e) => {
-                            e.target.value = e.target.value.toLowerCase();
-                        }
-                    })}
+                    {...register("description")}
                 />
             </div>
 
@@ -102,7 +108,7 @@ export function ExpenseForm({ onSubmit, loading }) {
                 disabled={loading}
                 className="w-full h-10 bg-black dark:bg-white text-white dark:text-black font-medium text-sm rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Expense"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit"}
             </button>
         </form>
     );

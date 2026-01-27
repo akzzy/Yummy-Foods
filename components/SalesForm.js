@@ -14,7 +14,8 @@ export function SalesForm({ onSubmit, loading }) {
         formState: { errors },
     } = useForm({
         defaultValues: {
-            date: getLocalDate()
+            date: getLocalDate(),
+            quantity: 1
         }
     });
 
@@ -31,8 +32,20 @@ export function SalesForm({ onSubmit, loading }) {
         setValue("totalAmount", t);
     }, [quantity, unitPrice, setValue]);
 
+    const handleLocalSubmit = async (data) => {
+        const success = await onSubmit(data);
+        if (success) {
+            // Reset fields but keep date
+            setValue("customer", "");
+            setValue("unitPrice", "");
+            setValue("quantity", 1);
+            setTotal(0); // Reset total state
+            // We don't touch date, so it stays as current selection
+        }
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form onSubmit={handleSubmit(handleLocalSubmit)} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* Date */}
             <div className="space-y-1.5">
@@ -60,9 +73,6 @@ export function SalesForm({ onSubmit, loading }) {
                     className="w-full px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-800 rounded-md text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800 transition-all text-sm"
                     {...register("customer", {
                         required: true,
-                        onChange: (e) => {
-                            e.target.value = e.target.value.toLowerCase();
-                        }
                     })}
                 />
                 {errors.customer && <p className="text-xs text-red-500">Customer name is required</p>}
@@ -118,7 +128,7 @@ export function SalesForm({ onSubmit, loading }) {
                 disabled={loading}
                 className="w-full h-10 bg-black dark:bg-white text-white dark:text-black font-medium text-sm rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Sale"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit"}
             </button>
         </form>
     );
