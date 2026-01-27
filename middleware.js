@@ -1,9 +1,52 @@
 import { NextResponse } from "next/server";
 
-export function middleware(request) {
+export async function middleware(request) {
     const authCookie = request.cookies.get("auth_session");
-    const isAuthenticated = authCookie?.value === "true";
     const isLoginPage = request.nextUrl.pathname === "/login";
+
+    let isAuthenticated = false;
+
+    if (authCookie?.value) {
+        try {
+            const [username, hash] = authCookie.value.split("|");
+
+            if (username && hash) {
+                // Re-construct valid users list to check password
+                // Note: Accessing process.env in middleware works in Next.js (Edge)
+                const allowedUsersEnv = process.env.ALLOWED_USERS || "";
+                const legacyUser = process.env.ADMIN_USERNAME;
+                const legacyPass = process.env.ADMIN_PASSWORD;
+
+                const validUsers = allowedUsersEnv.split(",").map(pair => {
+                    const [u, p] = pair.split(":");
+                    return { username: u?.trim(), password: p?.trim() };
+                }).filter(u => u.username && u.password);
+
+                if (legacyUser && legacyPass) {
+                    validUsers.push({ username: legacyUser, password: legacyPass });
+                }
+
+                const user = validUsers.find(u => u.username === username);
+
+                if (user) {
+                    // Re-compute hash to verify
+                    const sessionData = `${user.username}:${user.password}`;
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(sessionData + (process.env.AUTH_SECRET || "fallback_secret"));
+
+                    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const expectedHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+                    if (hash === expectedHash) {
+                        isAuthenticated = true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Auth verification failed", e);
+        }
+    }
 
     // If trying to access login page while authenticated, redirect to home
     if (isLoginPage && isAuthenticated) {

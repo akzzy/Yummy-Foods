@@ -27,10 +27,19 @@ export async function POST(request) {
         const isValidUser = validUsers.some(u => u.username === username && u.password === password);
 
         if (isValidUser) {
-            // Set a simple auth cookie
-            // In a production app, this should be a JWT or signed session ID
+            // Create a simple signed token using a hash of the credentials + secret
+            // Ideally use a proper JWT library, but for zero-deps this works for simple auth
+            const sessionData = `${username}:${password}`;
+            const encoder = new TextEncoder();
+            const data = encoder.encode(sessionData + (process.env.AUTH_SECRET || "fallback_secret"));
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+            const sessionToken = `${username}|${hashHex}`;
+
             const cookieStore = await cookies();
-            cookieStore.set("auth_session", "true", {
+            cookieStore.set("auth_session", sessionToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 60 * 60 * 24 * 7, // 1 week

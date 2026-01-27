@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRows, ensureReportSheets } from '@/lib/googleSheets';
+import { getRows } from '@/lib/googleSheets';
 
 export async function GET() {
     try {
