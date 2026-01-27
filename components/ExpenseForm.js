@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { getLocalDate } from "@/lib/utils";
 
@@ -14,6 +15,9 @@ const EXPENSE_CATEGORIES = [
 ];
 
 export function ExpenseForm({ onSubmit, loading }) {
+    const [categories, setCategories] = useState(EXPENSE_CATEGORIES);
+    const [fetchingCats, setFetchingCats] = useState(true);
+
     const {
         register,
         handleSubmit,
@@ -22,18 +26,49 @@ export function ExpenseForm({ onSubmit, loading }) {
     } = useForm({
         defaultValues: {
             date: getLocalDate(),
-            category: EXPENSE_CATEGORIES[0]
+            category: "" // Will set after fetch
         }
     });
+
+    useEffect(() => {
+        fetch("/api/categories")
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    setCategories(data);
+                    // Only update category value if current value is default/empty
+                    setValue("category", data[0]);
+                } else {
+                    console.warn("API returned empty categories, using defaults.");
+                    setCategories(EXPENSE_CATEGORIES);
+                    setValue("category", EXPENSE_CATEGORIES[0]);
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load categories", err);
+                setCategories(EXPENSE_CATEGORIES);
+                setValue("category", EXPENSE_CATEGORIES[0]);
+            })
+            .finally(() => setFetchingCats(false));
+    }, [setValue]);
 
     const handleLocalSubmit = async (data) => {
         const success = await onSubmit(data);
         if (success) {
-            setValue("category", EXPENSE_CATEGORIES[0]);
+            setValue("category", categories[0] || EXPENSE_CATEGORIES[0]);
             setValue("description", "");
             setValue("amount", "");
         }
     };
+
+    if (fetchingCats) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 space-y-4 h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+                <p className="text-sm text-gray-500">Loading expenses...</p>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit(handleLocalSubmit)} className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -60,10 +95,12 @@ export function ExpenseForm({ onSubmit, loading }) {
                 </label>
                 <select
                     id="category"
-                    className="w-full px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-800 rounded-md text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800 transition-all text-sm appearance-none"
+                    disabled={fetchingCats}
+                    className="w-full px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-800 rounded-md text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800 transition-all text-sm appearance-none disabled:opacity-50"
                     {...register("category", { required: true })}
                 >
-                    {EXPENSE_CATEGORIES.map((cat) => (
+                    {fetchingCats && <option>Loading...</option>}
+                    {!fetchingCats && categories.map((cat) => (
                         <option key={cat} value={cat} className="bg-white dark:bg-black">
                             {cat}
                         </option>

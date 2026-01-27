@@ -76,7 +76,7 @@ export function ReportsView() {
                 month,
                 profit: salesTotal - expenseTotal
             };
-        }).sort((a, b) => new Date(a.month) - new Date(b.month));
+        }).sort((a, b) => new Date(a.month) - new Date(b.month)).slice(-12);
 
     }, [data]);
 
