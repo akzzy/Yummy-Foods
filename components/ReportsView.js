@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment, useMemo } from "react";
+import { useTheme } from "next-themes";
 import { Loader2, ChevronDown, ChevronRight, Calendar, Info } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -97,6 +98,8 @@ export function ReportsView() {
     }, [data, selectedMonth]);
 
 
+    const { resolvedTheme } = useTheme();
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-gray-500">
@@ -114,6 +117,14 @@ export function ReportsView() {
         );
     }
 
+    const tooltipStyle = {
+        borderRadius: '8px',
+        border: 'none',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        backgroundColor: resolvedTheme === 'dark' ? 'rgba(24, 24, 27, 0.95)' : 'rgba(255, 255, 255, 0.96)',
+        color: resolvedTheme === 'dark' ? '#fff' : '#000'
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
 
@@ -124,7 +135,7 @@ export function ReportsView() {
                     Profit Trend
                 </h2>
 
-                <div className="h-64 w-full border border-gray-200 dark:border-gray-800 rounded-lg p-4 bg-white dark:bg-zinc-900">
+                <div className="h-64 w-full border border-gray-200 dark:border-gray-800 rounded-lg p-4 bg-white dark:bg-zinc-900 outline-none focus:outline-none focus:ring-0 active:outline-none">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                             data={profitData}
@@ -136,17 +147,20 @@ export function ReportsView() {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tick={{ fill: '#6B7280' }}
+                                tick={{ fill: resolvedTheme === 'dark' ? '#9CA3AF' : '#6B7280' }}
                             />
                             <YAxis
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tick={{ fill: '#6B7280' }}
+                                tick={{ fill: resolvedTheme === 'dark' ? '#9CA3AF' : '#6B7280' }}
                                 tickFormatter={(value) => `₹${value.toLocaleString('en-IN', { notation: 'compact' })}`}
                             />
                             <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.96)' }}
+                                contentStyle={tooltipStyle}
+                                wrapperStyle={{ outline: 'none' }}
+                                itemStyle={{ color: resolvedTheme === 'dark' ? '#fff' : '#000' }}
+                                labelStyle={{ color: resolvedTheme === 'dark' ? '#9CA3AF' : '#6B7280', marginBottom: '0.5rem' }}
                                 cursor={{ fill: 'transparent' }}
                                 formatter={(value) => [`₹ ${value.toLocaleString('en-IN')}`, "Profit"]}
                             />
@@ -176,22 +190,22 @@ export function ReportsView() {
 
                 {/* Summary Cards */}
                 {currentMonthData ? (
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 rounded-xl">
-                            <p className="text-xs text-green-600 dark:text-green-400 font-medium uppercase tracking-wider">Sales</p>
-                            <p className="text-xl font-bold text-green-700 dark:text-green-300 mt-1">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                        <div className="p-2 sm:p-4 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 rounded-xl flex flex-col justify-center text-center sm:text-left">
+                            <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 font-bold uppercase tracking-wider">Sales</p>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-green-700 dark:text-green-300 mt-0.5 sm:mt-1 whitespace-nowrap">
                                 ₹ {currentMonthData.salesTotal.toLocaleString('en-IN')}
                             </p>
                         </div>
-                        <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl">
-                            <p className="text-xs text-red-600 dark:text-red-400 font-medium uppercase tracking-wider">Expense</p>
-                            <p className="text-xl font-bold text-red-700 dark:text-red-300 mt-1">
+                        <div className="p-2 sm:p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl flex flex-col justify-center text-center sm:text-left">
+                            <p className="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-bold uppercase tracking-wider">Expense</p>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-red-700 dark:text-red-300 mt-0.5 sm:mt-1 whitespace-nowrap">
                                 ₹ {currentMonthData.expenseTotal.toLocaleString('en-IN')}
                             </p>
                         </div>
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl">
-                            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium uppercase tracking-wider">Net Profit</p>
-                            <p className="text-xl font-bold text-blue-700 dark:text-blue-300 mt-1">
+                        <div className="p-2 sm:p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl flex flex-col justify-center text-center sm:text-left">
+                            <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Profit</p>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-blue-700 dark:text-blue-300 mt-0.5 sm:mt-1 whitespace-nowrap">
                                 ₹ {currentMonthData.profit.toLocaleString('en-IN')}
                             </p>
                         </div>
@@ -203,7 +217,7 @@ export function ReportsView() {
 
             {/* 3. Detailed Lists (Collapsible) */}
             {currentMonthData && (
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="flex flex-col gap-8">
 
                     {/* Sales Report (Collapsible) */}
                     <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-zinc-900 overflow-hidden h-fit">
