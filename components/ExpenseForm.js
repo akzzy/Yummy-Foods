@@ -6,8 +6,8 @@ import { Loader2 } from "lucide-react";
 import { getLocalDate } from "@/lib/utils";
 
 const EXPENSE_CATEGORIES = [
-    "Gas",
     "Groceries",
+    "Gas",
     "Packaging",
     "Wages",
     "Rice Mill",
