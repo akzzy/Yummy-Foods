@@ -88,6 +88,7 @@ export function SalesForm({ onSubmit, loading }) {
                         id="quantity"
                         type="number"
                         min="1"
+                        step="any"
                         placeholder="0"
                         className="w-full px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-800 rounded-md text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800 transition-all text-sm"
                         {...register("quantity", { required: true, min: 1 })}
