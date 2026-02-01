@@ -13,7 +13,7 @@ const expenseSchema = z.object({
 const salesSchema = z.object({
     date: z.string(),
     customer: z.string(),
-    quantity: z.coerce.number().int().positive(),
+    quantity: z.coerce.number().positive(),
     unitPrice: z.coerce.number().positive(),
     totalAmount: z.coerce.number().positive(),
 });
